@@ -313,10 +313,10 @@ class ApacheConnector implements Connector {
         clientBuilder.setDefaultRequestConfig(requestConfig);
         this.client = clientBuilder.build();
     }
-
+    private static final String SSL_CONFIG = "jersey.config.apache.client.ssl.sslConfig";
     private SSLContext getSslContext(final Configuration config) {
         final SslConfigurator sslConfigurator = ApacheClientProperties.getValue(config.getProperties(),
-                ApacheClientProperties.SSL_CONFIG, SslConfigurator.class);
+                SSL_CONFIG, SslConfigurator.class);
 
         return sslConfigurator != null ? sslConfigurator.createSSLContext() : null;
     }
