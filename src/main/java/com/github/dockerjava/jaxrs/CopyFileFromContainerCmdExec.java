@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.CopyFileFromContainerCmd;
+import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.jaxrs.util.WrappedResponseInputStream;
 
 public class CopyFileFromContainerCmdExec extends AbstrSyncDockerCmdExec<CopyFileFromContainerCmd, InputStream>
@@ -19,8 +20,8 @@ public class CopyFileFromContainerCmdExec extends AbstrSyncDockerCmdExec<CopyFil
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CopyFileFromContainerCmdExec.class);
 
-    public CopyFileFromContainerCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public CopyFileFromContainerCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

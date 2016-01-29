@@ -18,14 +18,17 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.github.dockerjava.core.RemoteApiVersion;
 
 /**
  * Represents a bind mounted volume in a Docker container.
- * 
+ *
  * @see Bind
+ * @deprecated since {@link RemoteApiVersion#VERSION_1_20}
  */
 @JsonDeserialize(using = VolumeRW.Deserializer.class)
 @JsonSerialize(using = VolumeRW.Serializer.class)
+@Deprecated
 public class VolumeRW {
 
     private Volume volume;
@@ -52,7 +55,7 @@ public class VolumeRW {
     /**
      * Returns a string representation of this {@link VolumeRW} suitable for inclusion in a JSON message. The returned
      * String is simply the container path, {@link #getPath()}.
-     * 
+     *
      * @return a string representation of this {@link VolumeRW}
      */
     @Override

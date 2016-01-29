@@ -1,26 +1,48 @@
 package com.github.dockerjava.api.command;
 
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.CheckForNull;
 
 import com.github.dockerjava.api.model.Image;
 
 /**
  * List images
- *
- * @param showAll
- *            - Show all images (by default filter out the intermediate images used to build)
- * @param filters
- *            - a json encoded value of the filters (a map[string][]string) to process on the images list.
  */
 public interface ListImagesCmd extends SyncDockerCmd<List<Image>> {
 
-    public String getFilters();
+    @CheckForNull
+    public Map<String, List<String>> getFilters();
 
-    public boolean hasShowAllEnabled();
+    public String getImageNameFilter();
 
-    public ListImagesCmd withShowAll(boolean showAll);
+    @CheckForNull
+    public Boolean hasShowAllEnabled();
 
-    public ListImagesCmd withFilters(String filters);
+    /**
+     * Show all images (by default filter out the intermediate images used to build)
+     */
+    public ListImagesCmd withShowAll(Boolean showAll);
+
+    public ListImagesCmd withImageNameFilter(String imageName);
+
+    /**
+     * Filter dangling images
+     */
+    public ListImagesCmd withDanglingFilter(Boolean dangling);
+
+    /**
+     * @param labels
+     *            - string array in the form ["key"] or ["key=value"] or a mix of both
+     */
+    public ListImagesCmd withLabelFilter(String... label);
+
+    /**
+     * @param labels
+     *            - {@link Map} of labels that contains label keys and values
+     */
+    public ListImagesCmd withLabelFilter(Map<String, String> labels);
 
     public static interface Exec extends DockerCmdSyncExec<ListImagesCmd, List<Image>> {
     }

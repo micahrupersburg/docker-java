@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -48,7 +49,7 @@
 		<jdk.target>1.7</jdk.target>
 
 		<jersey.version>2.21</jersey.version>
-		<jackson-jaxrs.version>2.6.1</jackson-jaxrs.version>
+		<jackson-jaxrs.version>2.6.4</jackson-jaxrs.version>
 		<httpclient.version>4.3.1</httpclient.version>
 		<commons-compress.version>1.5</commons-compress.version>
 		<commons-codec.version>1.8</commons-codec.version>
@@ -62,7 +63,7 @@
 
 		<!-- test dependencies -->
 		<logback.version>1.1.0</logback.version>
-		<testng.version>5.12.1</testng.version>
+		<testng.version>6.1.1</testng.version>
 		<hamcrest.library.version>1.3</hamcrest.library.version>
 		<hamcrest.jpa-matchers>1.6</hamcrest.jpa-matchers>
 		<lambdaj.version>2.3.3</lambdaj.version>
@@ -200,6 +201,28 @@
 			<artifactId>annotations</artifactId>
 			<version>3.0.0</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-codec-http</artifactId>
+			<version>4.1.0.Beta7</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-handler</artifactId>
+			<version>4.1.0.Beta7</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-handler-proxy</artifactId>
+			<version>4.1.0.Beta7</version>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-transport-native-epoll</artifactId>
+			<version>4.1.0.Beta7</version>
+			<classifier>linux-x86_64</classifier>
 		</dependency>
 	</dependencies>
 
@@ -361,7 +384,7 @@
 						</goals>
 						<configuration>
 							<groups>integration</groups>
-							<excludedGroups>ignoreInCircleCi</excludedGroups>
+<!-- 							<excludedGroups>ignoreInCircleCi</excludedGroups> -->
 							<includes>
 								<include>**/*Test.java</include>
 							</includes>
@@ -397,6 +420,58 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>docker-java-analyses</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-checkstyle-plugin</artifactId>
+						<version>2.17</version>
+						<executions>
+							<execution>
+								<id>checkstyle</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<failOnViolation>true</failOnViolation>
+							<logViolationsToConsole>true</logViolationsToConsole>
+							<linkXRef>false</linkXRef>
+							<!-- if some IDE has integration and requires other place, propose it -->
+							<configLocation>
+								src/test/resources/checkstyle/checkstyle-config.xml
+							</configLocation>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>findbugs-maven-plugin</artifactId>
+						<version>3.0.2</version>
+						<configuration>
+							<effort>Max</effort>
+							<threshold>Low</threshold>
+							<xmlOutput>true</xmlOutput>
+							<!-- until all will be fixed -->
+							<failOnError>false</failOnError>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>

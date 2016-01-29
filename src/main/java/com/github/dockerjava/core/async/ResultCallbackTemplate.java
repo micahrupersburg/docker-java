@@ -8,15 +8,18 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.CheckForNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.async.ResultCallback;
+import com.google.common.base.Throwables;
 
 /**
  * Abstract template implementation of {@link ResultCallback}
  *
- * @author marcus
+ * @author Marcus Linke
  *
  */
 public abstract class ResultCallbackTemplate<RC_T extends ResultCallback<A_RES_T>, A_RES_T> implements
@@ -24,26 +27,34 @@ public abstract class ResultCallbackTemplate<RC_T extends ResultCallback<A_RES_T
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ResultCallbackTemplate.class);
 
+    private final CountDownLatch started = new CountDownLatch(1);
+
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Closeable stream;
 
     private boolean closed = false;
 
+    private Throwable firstError = null;
+
     @Override
     public void onStart(Closeable stream) {
         this.stream = stream;
         this.closed = false;
+        started.countDown();
     }
 
     @Override
     public void onError(Throwable throwable) {
+
         if (closed)
             return;
 
+        if (this.firstError == null)
+            this.firstError = throwable;
+
         try {
             LOGGER.error("Error during callback", throwable);
-            throw new RuntimeException(throwable);
         } finally {
             try {
                 close();
@@ -76,6 +87,8 @@ public abstract class ResultCallbackTemplate<RC_T extends ResultCallback<A_RES_T
     @SuppressWarnings("unchecked")
     public RC_T awaitCompletion() throws InterruptedException {
         completed.await();
+        // eventually (re)throws RuntimeException
+        getFirstError();
         return (RC_T) this;
     }
 
@@ -86,5 +99,36 @@ public abstract class ResultCallbackTemplate<RC_T extends ResultCallback<A_RES_T
     public RC_T awaitCompletion(long timeout, TimeUnit timeUnit) throws InterruptedException {
         completed.await(timeout, timeUnit);
         return (RC_T) this;
+    }
+
+    /**
+     * Blocks until {@link ResultCallback#onStart()} was called. {@link ResultCallback#onStart()} is called when the
+     * request was processed on the server side and the response is incoming.
+     */
+    @SuppressWarnings("unchecked")
+    public RC_T awaitStarted() throws InterruptedException {
+        started.await();
+        return (RC_T) this;
+    }
+
+    /**
+     * Blocks until {@link ResultCallback#onStart()} was called or the given timeout occurs.
+     * {@link ResultCallback#onStart()} is called when the request was processed on the server side and the response is
+     * incoming.
+     */
+    @SuppressWarnings("unchecked")
+    public RC_T awaitStarted(long timeout, TimeUnit timeUnit) throws InterruptedException {
+        started.await(timeout, timeUnit);
+        return (RC_T) this;
+    }
+
+    @CheckForNull
+    protected RuntimeException getFirstError() {
+        if (firstError != null) {
+            // this call throws a RuntimeException
+            return Throwables.propagate(firstError);
+        } else {
+            return null;
+        }
     }
 }

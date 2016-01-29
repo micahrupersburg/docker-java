@@ -8,13 +8,14 @@ import javax.ws.rs.client.WebTarget;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.AsyncDockerCmd;
 import com.github.dockerjava.api.command.DockerCmdAsyncExec;
+import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.jaxrs.async.AbstractCallbackNotifier;
 
 public abstract class AbstrAsyncDockerCmdExec<CMD_T extends AsyncDockerCmd<CMD_T, A_RES_T>, A_RES_T> extends
         AbstrDockerCmdExec implements DockerCmdAsyncExec<CMD_T, A_RES_T> {
 
-    public AbstrAsyncDockerCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public AbstrAsyncDockerCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

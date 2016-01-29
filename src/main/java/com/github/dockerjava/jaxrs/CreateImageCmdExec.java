@@ -10,14 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.CreateImageCmd;
 import com.github.dockerjava.api.command.CreateImageResponse;
+import com.github.dockerjava.core.DockerClientConfig;
 
 public class CreateImageCmdExec extends AbstrSyncDockerCmdExec<CreateImageCmd, CreateImageResponse> implements
         CreateImageCmd.Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateImageCmdExec.class);
 
-    public CreateImageCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public CreateImageCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

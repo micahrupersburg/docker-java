@@ -10,14 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.core.DockerClientConfig;
 
 public class CreateContainerCmdExec extends AbstrSyncDockerCmdExec<CreateContainerCmd, CreateContainerResponse>
         implements CreateContainerCmd.Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateContainerCmdExec.class);
 
-    public CreateContainerCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public CreateContainerCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

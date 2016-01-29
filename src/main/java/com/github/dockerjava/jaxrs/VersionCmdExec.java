@@ -8,13 +8,14 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.VersionCmd;
 import com.github.dockerjava.api.model.Version;
+import com.github.dockerjava.core.DockerClientConfig;
 
 public class VersionCmdExec extends AbstrSyncDockerCmdExec<VersionCmd, Version> implements VersionCmd.Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionCmdExec.class);
 
-    public VersionCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public VersionCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

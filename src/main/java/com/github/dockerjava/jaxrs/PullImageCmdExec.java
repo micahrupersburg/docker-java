@@ -14,6 +14,7 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.PullImageCmd;
 import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.PullResponseItem;
+import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.async.JsonStreamProcessor;
 import com.github.dockerjava.jaxrs.async.AbstractCallbackNotifier;
 import com.github.dockerjava.jaxrs.async.POSTCallbackNotifier;
@@ -23,8 +24,8 @@ public class PullImageCmdExec extends AbstrAsyncDockerCmdExec<PullImageCmd, Pull
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PullImageCmdExec.class);
 
-    public PullImageCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public PullImageCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     private Invocation.Builder resourceWithOptionalAuthConfig(PullImageCmd command, Invocation.Builder request) {

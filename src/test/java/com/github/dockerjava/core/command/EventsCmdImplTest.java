@@ -15,7 +15,6 @@ import org.testng.annotations.Test;
 
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Event;
-import com.github.dockerjava.api.model.EventFilters;
 import com.github.dockerjava.client.AbstractDockerClientTest;
 
 @Test(groups = "integration")
@@ -64,7 +63,7 @@ public class EventsCmdImplTest extends AbstractDockerClientTest {
 
         dockerClient.eventsCmd().withSince(startTime).withUntil(endTime).exec(eventCallback);
 
-        boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
+        Boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
 
         eventCallback.close();
 
@@ -83,7 +82,7 @@ public class EventsCmdImplTest extends AbstractDockerClientTest {
 
         generateEvents();
 
-        boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
+        Boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
 
         eventCallback.close();
         assertTrue(zeroCount, "Received only: " + eventCallback.getEvents());
@@ -101,7 +100,7 @@ public class EventsCmdImplTest extends AbstractDockerClientTest {
 
         generateEvents();
 
-        boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
+        Boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
 
         eventCallback.close();
         assertTrue(zeroCount, "Received only: " + eventCallback.getEvents());
@@ -112,12 +111,12 @@ public class EventsCmdImplTest extends AbstractDockerClientTest {
         TimeUnit.SECONDS.sleep(1);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        EventsTestCallback eventCallback = dockerClient.eventsCmd().withFilters(new EventFilters().withEvent("start"))
+        EventsTestCallback eventCallback = dockerClient.eventsCmd().withEventFilter("start")
                 .exec(new EventsTestCallback(countDownLatch));
 
         generateEvents();
 
-        boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
+        Boolean zeroCount = countDownLatch.await(10, TimeUnit.SECONDS);
 
         eventCallback.close();
         assertTrue(zeroCount, "Received only: " + eventCallback.getEvents());

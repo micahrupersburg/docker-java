@@ -6,6 +6,8 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.RequestEntityProcessing;
 import org.slf4j.Logger;
@@ -15,24 +17,41 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.model.AuthConfigurations;
 import com.github.dockerjava.api.model.BuildResponseItem;
+import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.async.JsonStreamProcessor;
 import com.github.dockerjava.jaxrs.async.AbstractCallbackNotifier;
 import com.github.dockerjava.jaxrs.async.POSTCallbackNotifier;
+
+import java.io.IOException;
+import java.net.URLEncoder;
 
 public class BuildImageCmdExec extends AbstrAsyncDockerCmdExec<BuildImageCmd, BuildResponseItem> implements
         BuildImageCmd.Exec {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildImageCmdExec.class);
 
-    public BuildImageCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    public BuildImageCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     private Invocation.Builder resourceWithOptionalAuthConfig(BuildImageCmd command, Invocation.Builder request) {
-        AuthConfigurations authConfigs = command.getBuildAuthConfigs();
+        final AuthConfigurations authConfigs = firstNonNull(command.getBuildAuthConfigs(), getBuildAuthConfigs());
         if (authConfigs != null) {
             request = request.header("X-Registry-Config", registryConfigs(authConfigs));
         }
         return request;
+    }
+
+    private static AuthConfigurations firstNonNull(final AuthConfigurations fromCommand,
+            final AuthConfigurations fromConfig) {
+        if (fromCommand != null) {
+            return fromCommand;
+        }
+        if (fromConfig != null) {
+            return fromConfig;
+        }
+        return null;
     }
 
     @Override
@@ -51,21 +70,18 @@ public class BuildImageCmdExec extends AbstrAsyncDockerCmdExec<BuildImageCmd, Bu
         if (command.getRemote() != null) {
             webTarget = webTarget.queryParam("remote", command.getRemote().toString());
         }
-        if (command.isQuiet()) {
-            webTarget = webTarget.queryParam("q", "true");
-        }
-        if (command.hasNoCacheEnabled()) {
-            webTarget = webTarget.queryParam("nocache", "true");
-        }
-        if (command.hasPullEnabled()) {
-            webTarget = webTarget.queryParam("pull", "true");
-        }
-        if (!command.hasRemoveEnabled()) {
+
+        webTarget = booleanQueryParam(webTarget, "q", command.isQuiet());
+        webTarget = booleanQueryParam(webTarget, "nocache", command.hasNoCacheEnabled());
+        webTarget = booleanQueryParam(webTarget, "pull", command.hasPullEnabled());
+        webTarget = booleanQueryParam(webTarget, "rm", command.hasRemoveEnabled());
+        webTarget = booleanQueryParam(webTarget, "forcerm", command.isForcerm());
+
+        // this has to be handled differently as it should switch to 'false'
+        if (command.hasRemoveEnabled() == null || !command.hasRemoveEnabled()) {
             webTarget = webTarget.queryParam("rm", "false");
         }
-        if (command.isForcerm()) {
-            webTarget = webTarget.queryParam("forcerm", "true");
-        }
+
         if (command.getMemory() != null) {
             webTarget = webTarget.queryParam("memory", command.getMemory());
         }
@@ -77,6 +93,19 @@ public class BuildImageCmdExec extends AbstrAsyncDockerCmdExec<BuildImageCmd, Bu
         }
         if (command.getCpusetcpus() != null) {
             webTarget = webTarget.queryParam("cpusetcpus", command.getCpusetcpus());
+        }
+
+        if (command.hasRemoveEnabled() == null || !command.hasRemoveEnabled()) {
+            webTarget = webTarget.queryParam("rm", "false");
+        }
+
+        if (command.getBuildArgs() != null && !command.getBuildArgs().isEmpty()) {
+            try {
+                webTarget = webTarget.queryParam("buildargs",
+                        URLEncoder.encode(MAPPER.writeValueAsString(command.getBuildArgs()), "UTF-8"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         webTarget.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.CHUNKED);

@@ -57,6 +57,10 @@ public interface DockerCmdExecFactory extends Closeable {
 
     public CopyFileFromContainerCmd.Exec createCopyFileFromContainerCmdExec();
 
+    public CopyArchiveFromContainerCmd.Exec createCopyArchiveFromContainerCmdExec();
+
+    public CopyArchiveToContainerCmd.Exec createCopyArchiveToContainerCmdExec();
+
     public StopContainerCmd.Exec createStopContainerCmdExec();
 
     public ContainerDiffCmd.Exec createContainerDiffCmdExec();
@@ -80,6 +84,26 @@ public interface DockerCmdExecFactory extends Closeable {
     public EventsCmd.Exec createEventsCmdExec();
 
     public StatsCmd.Exec createStatsCmdExec();
+
+    public CreateVolumeCmd.Exec createCreateVolumeCmdExec();
+
+    public InspectVolumeCmd.Exec createInspectVolumeCmdExec();
+
+    public RemoveVolumeCmd.Exec createRemoveVolumeCmdExec();
+
+    public ListVolumesCmd.Exec createListVolumesCmdExec();
+
+    public ListNetworksCmd.Exec createListNetworksCmdExec();
+
+    public InspectNetworkCmd.Exec createInspectNetworkCmdExec();
+
+    public CreateNetworkCmd.Exec createCreateNetworkCmdExec();
+
+    public RemoveNetworkCmd.Exec createRemoveNetworkCmdExec();
+
+    public ConnectToNetworkCmd.Exec createConnectToNetworkCmdExec();
+
+    public DisconnectFromNetworkCmd.Exec createDisconnectFromNetworkCmdExec();
 
     @Override
     public void close() throws IOException;

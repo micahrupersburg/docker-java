@@ -28,22 +28,19 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.github.dockerjava.api.ConflictException;
-import com.github.dockerjava.api.DockerException;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.AccessMode;
+import com.github.dockerjava.api.exception.ConflictException;
+import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Device;
 import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Link;
 import com.github.dockerjava.api.model.LogConfig;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Ulimit;
 import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.api.model.VolumeRW;
 import com.github.dockerjava.api.model.VolumesFrom;
 import com.github.dockerjava.client.AbstractDockerClientTest;
 
@@ -107,7 +104,9 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
 
         assertThat(inspectContainerResponse.getConfig().getVolumes().keySet(), contains("/var/log"));
 
-        assertThat(inspectContainerResponse.getVolumesRW(), hasItemInArray(new VolumeRW(volume, AccessMode.rw)));
+        assertThat(inspectContainerResponse.getMounts().get(0).getDestination(), equalTo(volume));
+        assertThat(inspectContainerResponse.getMounts().get(0).getMode(), equalTo(""));
+        assertThat(inspectContainerResponse.getMounts().get(0).getRW(), equalTo(true));
     }
 
     @Test
@@ -128,7 +127,9 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
 
         assertThat(inspectContainerResponse.getConfig().getVolumes().keySet(), contains("/srv/test"));
 
-        assertThat(Arrays.asList(inspectContainerResponse.getVolumesRW()), contains(new VolumeRW(volume)));
+        assertThat(inspectContainerResponse.getMounts().get(0).getDestination(), equalTo(volume));
+        // TODO: Create a read-only volume and test like this
+        // assertFalse(inspectContainerResponse.getMounts().get(0).getRW());
     }
 
     @Test
@@ -139,19 +140,21 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
 
         String container1Name = UUID.randomUUID().toString();
 
+        Bind bind1 = new Bind("/src/webapp1", volume1);
+        Bind bind2 = new Bind("/src/webapp2", volume2);
+
         // create a running container with bind mounts
         CreateContainerResponse container1 = dockerClient.createContainerCmd("busybox").withCmd("sleep", "9999")
                 .withName(container1Name)
-                .withBinds(new Bind("/src/webapp1", volume1), new Bind("/src/webapp2", volume2)).exec();
+                .withBinds(bind1, bind2).exec();
         LOG.info("Created container1 {}", container1.toString());
-
-        dockerClient.startContainerCmd(container1.getId()).exec();
-        LOG.info("Started container1 {}", container1.toString());
 
         InspectContainerResponse inspectContainerResponse1 = dockerClient.inspectContainerCmd(container1.getId())
                 .exec();
 
-        assertContainerHasVolumes(inspectContainerResponse1, volume1, volume2);
+        assertThat(Arrays.asList(inspectContainerResponse1.getHostConfig().getBinds()), containsInAnyOrder(bind1, bind2));
+
+        assertThat(inspectContainerResponse1, mountedVolumes(containsInAnyOrder(volume1, volume2)));
 
         // create a second container with volumes from first container
         CreateContainerResponse container2 = dockerClient.createContainerCmd("busybox").withCmd("sleep", "9999")
@@ -177,7 +180,8 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
 
         assertThat(inspectContainerResponse2.getHostConfig().getVolumesFrom(), hasItemInArray(new VolumesFrom(
                 container1Name)));
-        assertContainerHasVolumes(inspectContainerResponse2, volume1, volume2);
+
+        assertThat(inspectContainerResponse2, mountedVolumes(containsInAnyOrder(volume1, volume2)));
     }
 
     @Test
@@ -253,7 +257,7 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
         InspectContainerResponse inspectContainerResponse1 = dockerClient.inspectContainerCmd(container1.getId())
                 .exec();
         LOG.info("Container1 Inspect: {}", inspectContainerResponse1.toString());
-        assertThat(inspectContainerResponse1.getState().isRunning(), is(true));
+        assertThat(inspectContainerResponse1.getState().getRunning(), is(true));
 
         CreateContainerResponse container2 = dockerClient.createContainerCmd("busybox").withName("container2")
                 .withCmd("env").withLinks(new Link("container1", "container1Link")).exec();
@@ -406,9 +410,9 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
         assertThat(inspectContainerResponse1.getName(), equalTo("/container1"));
         assertThat(inspectContainerResponse1.getImageId(), not(isEmptyString()));
         assertThat(inspectContainerResponse1.getState(), is(notNullValue()));
-        assertThat(inspectContainerResponse1.getState().isRunning(), is(true));
+        assertThat(inspectContainerResponse1.getState().getRunning(), is(true));
 
-        if (!inspectContainerResponse1.getState().isRunning()) {
+        if (!inspectContainerResponse1.getState().getRunning()) {
             assertThat(inspectContainerResponse1.getState().getExitCode(), is(equalTo(0)));
         }
 
@@ -449,6 +453,21 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
         InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(container.getId()).exec();
 
         assertThat(inspectContainerResponse.getHostConfig().getRestartPolicy(), is(equalTo(restartPolicy)));
+    }
+
+    @Test
+    public void createContainerWithPidMode() throws DockerException {
+
+        CreateContainerResponse container = dockerClient.createContainerCmd("busybox").withCmd("true")
+                .withPidMode("host").exec();
+
+        LOG.info("Created container {}", container.toString());
+
+        assertThat(container.getId(), not(isEmptyString()));
+
+        InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(container.getId()).exec();
+
+        assertThat(inspectContainerResponse.getHostConfig().getPidMode(), is(equalTo("host")));
     }
 
     /**
@@ -512,7 +531,7 @@ public class CreateContainerCmdImplTest extends AbstractDockerClientTest {
 
         Map<String, String> labels = new HashMap<String, String>();
         labels.put("com.github.dockerjava.null", null);
-        labels.put("com.github.dockerjava.boolean", "true");
+        labels.put("com.github.dockerjava.Boolean", "true");
 
         CreateContainerResponse container = dockerClient.createContainerCmd("busybox").withCmd("sleep", "9999")
                 .withLabels(labels).exec();

@@ -7,14 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.UnpauseContainerCmd;
+import com.github.dockerjava.core.DockerClientConfig;
 
 public class UnpauseContainerCmdExec extends AbstrSyncDockerCmdExec<UnpauseContainerCmd, Void> implements
         UnpauseContainerCmd.Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnpauseContainerCmdExec.class);
 
-    public UnpauseContainerCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public UnpauseContainerCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

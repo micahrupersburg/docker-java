@@ -8,13 +8,14 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.InspectExecCmd;
 import com.github.dockerjava.api.command.InspectExecResponse;
+import com.github.dockerjava.core.DockerClientConfig;
 
 public class InspectExecCmdExec extends AbstrSyncDockerCmdExec<InspectExecCmd, InspectExecResponse> implements
         InspectExecCmd.Exec {
     private static final Logger LOGGER = LoggerFactory.getLogger(InspectExecCmdExec.class);
 
-    public InspectExecCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public InspectExecCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

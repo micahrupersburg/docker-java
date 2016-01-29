@@ -5,6 +5,8 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -13,13 +15,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(Include.NON_NULL)
 public class Container {
 
     @JsonProperty("Command")
     private String command;
 
     @JsonProperty("Created")
-    private long created;
+    private Long created;
 
     @JsonProperty("Id")
     private String id;
@@ -51,7 +54,7 @@ public class Container {
         return image;
     }
 
-    public long getCreated() {
+    public Long getCreated() {
         return created;
     }
 

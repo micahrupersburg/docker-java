@@ -1,6 +1,49 @@
 Change Log
 ===
 
+3.0.0-SNAPSHOT
+---
+Notes
+
+* The upcoming release will contain multiple API breaking changes therefore the major version switch. It will support a subset of v.1.21 of the docker remote API. It also includes an experimental netty based implementation of `DockerCmdExecFactory` that probably will replace the current jersey/httpclient based one in a later release.
+
+All changes
+* [#430] (https://github.com/docker-java/docker-java/pull/430) Fix ExecStartCmd failure 
+* [#426] (https://github.com/docker-java/docker-java/pull/426) Refactored filters API 
+* [#425] (https://github.com/docker-java/docker-java/pull/425) Implement Network API
+* [#410] (https://github.com/docker-java/docker-java/pull/410) Support for build-args of docker build 
+* [#408] (https://github.com/docker-java/docker-java/pull/408) Support for volume API
+* [#406] (https://github.com/docker-java/docker-java/pull/406) Added RestartCount to InspectContainerResponse
+* [#396] (https://github.com/docker-java/docker-java/pull/396) Disable evaluation of http.proxy... variables when using unix socket connection 
+* [#393] (https://github.com/docker-java/docker-java/pull/393) Support ONBUILD instruction in Dockerfiles 
+* [#392] (https://github.com/docker-java/docker-java/pull/392) Introduce InspectContainerResponse.Mounts
+* [#387] (https://github.com/docker-java/docker-java/pull/387) Make ProgressDetails attributes public
+* [#386] (https://github.com/docker-java/docker-java/pull/386) Basic http proxy configuration support
+* [#362] (https://github.com/docker-java/docker-java/pull/362) Deprecate "network" and enable "networks" stats (remote Docker API 1.21) 
+* [#359] (https://github.com/docker-java/docker-java/pull/359) Fix performance issue of build command by adding bulk-read variant of InputStream.read()
+* [#357] (https://github.com/docker-java/docker-java/pull/357) Wait container command needs possibility to abort operation
+* [#347] (https://github.com/docker-java/docker-java/pull/347) Implementation of copy archive to/from container commands 
+* [#313] (https://github.com/docker-java/docker-java/pull/313) Refactor primitive type fields to be of object type in JSON objects
+
+v2.1.4
+---
+
+* [#396] (https://github.com/docker-java/docker-java/pull/396) Disable evaluation of http.proxy... variables when using unix socket connection  
+* [#359] (https://github.com/docker-java/docker-java/pull/359) Fix performance issue of build command by adding bulk-read variant of InputStream.read()
+
+v2.1.3
+---
+* [#387] (https://github.com/docker-java/docker-java/pull/387) Make ProgressDetails attributes public
+* [#386] (https://github.com/docker-java/docker-java/pull/386) Basic http proxy configuration support
+* [#362] (https://github.com/docker-java/docker-java/pull/362) Deprecate "network" and enable "networks" stats (remote Docker API 1.21)
+
+v2.1.2
+---
+* [#350] (https://github.com/docker-java/docker-java/pull/350) Remove ServiceLoader logic
+* [#344] (https://github.com/docker-java/docker-java/pull/344) Implement equals/hashCode for Filters
+* [#335] (https://github.com/docker-java/docker-java/pull/335) Improve backward-compatibility support for older API versions
+* [#333] (https://github.com/docker-java/docker-java/pull/333) Adding support for withPidMode 
+
 v2.1.1
 ---
 * [#326] (https://github.com/docker-java/docker-java/pull/326) Add all missing fields to ResponseItem and related classes 

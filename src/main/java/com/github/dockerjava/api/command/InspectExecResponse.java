@@ -6,6 +6,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.dockerjava.api.model.NetworkSettings;
+import com.github.dockerjava.core.RemoteApiVersion;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InspectExecResponse {
@@ -13,42 +15,56 @@ public class InspectExecResponse {
     private String id;
 
     @JsonProperty("OpenStdin")
-    private boolean openStdin;
+    private Boolean openStdin;
 
     @JsonProperty("OpenStderr")
-    private boolean openStderr;
+    private Boolean openStderr;
 
     @JsonProperty("OpenStdout")
-    private boolean openStdout;
+    private Boolean openStdout;
 
     @JsonProperty("Running")
-    private boolean running;
+    private Boolean running;
 
     @JsonProperty("ExitCode")
-    private int exitCode;
+    private Integer exitCode;
+
+    @JsonProperty("ProcessConfig")
+    private ProcessConfig processConfig;
+
+    @JsonProperty("Container")
+    private Container container;
 
     public String getId() {
         return id;
     }
 
-    public boolean isOpenStdin() {
+    public Boolean isOpenStdin() {
         return openStdin;
     }
 
-    public boolean isOpenStderr() {
+    public Boolean isOpenStderr() {
         return openStderr;
     }
 
-    public boolean isOpenStdout() {
+    public Boolean isOpenStdout() {
         return openStdout;
     }
 
-    public boolean isRunning() {
+    public Boolean isRunning() {
         return running;
     }
 
-    public int getExitCode() {
+    public Integer getExitCode() {
         return exitCode;
+    }
+
+    public ProcessConfig getProcessConfig() {
+        return processConfig;
+    }
+
+    public Container getContainer() {
+        return container;
     }
 
     @Override
@@ -58,6 +74,7 @@ public class InspectExecResponse {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public class ProcessConfig {
+
         @JsonProperty("arguments")
         private List<String> arguments;
 
@@ -65,10 +82,10 @@ public class InspectExecResponse {
         private String entryPoint;
 
         @JsonProperty("privileged")
-        private boolean privileged;
+        private Boolean privileged;
 
         @JsonProperty("tty")
-        private boolean tty;
+        private Boolean tty;
 
         @JsonProperty("user")
         private String user;
@@ -81,11 +98,11 @@ public class InspectExecResponse {
             return entryPoint;
         }
 
-        public boolean isPrivileged() {
+        public Boolean isPrivileged() {
             return privileged;
         }
 
-        public boolean isTty() {
+        public Boolean isTty() {
             return tty;
         }
 
@@ -96,6 +113,20 @@ public class InspectExecResponse {
         @Override
         public String toString() {
             return ToStringBuilder.reflectionToString(this);
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public class Container {
+
+        @JsonProperty("NetworkSettings")
+        private NetworkSettings networkSettings;
+
+        /**
+         * @since {@link RemoteApiVersion#VERSION_1_21}
+         */
+        public NetworkSettings getNetworkSettings() {
+            return networkSettings;
         }
     }
 }

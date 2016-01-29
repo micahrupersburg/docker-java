@@ -13,6 +13,7 @@ import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.PushImageCmd;
 import com.github.dockerjava.api.model.AuthConfig;
 import com.github.dockerjava.api.model.PushResponseItem;
+import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.async.JsonStreamProcessor;
 import com.github.dockerjava.jaxrs.async.AbstractCallbackNotifier;
 import com.github.dockerjava.jaxrs.async.POSTCallbackNotifier;
@@ -22,8 +23,8 @@ public class PushImageCmdExec extends AbstrAsyncDockerCmdExec<PushImageCmd, Push
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PushImageCmdExec.class);
 
-    public PushImageCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public PushImageCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     private String name(PushImageCmd command) {

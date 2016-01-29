@@ -10,14 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.ExecCreateCmd;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
+import com.github.dockerjava.core.DockerClientConfig;
 
 public class ExecCreateCmdExec extends AbstrSyncDockerCmdExec<ExecCreateCmd, ExecCreateCmdResponse> implements
         ExecCreateCmd.Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionCmdExec.class);
 
-    public ExecCreateCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public ExecCreateCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override

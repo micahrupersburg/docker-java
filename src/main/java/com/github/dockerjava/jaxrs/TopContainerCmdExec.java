@@ -9,14 +9,15 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dockerjava.api.command.TopContainerCmd;
 import com.github.dockerjava.api.command.TopContainerResponse;
+import com.github.dockerjava.core.DockerClientConfig;
 
 public class TopContainerCmdExec extends AbstrSyncDockerCmdExec<TopContainerCmd, TopContainerResponse> implements
         TopContainerCmd.Exec {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopContainerCmdExec.class);
 
-    public TopContainerCmdExec(WebTarget baseResource) {
-        super(baseResource);
+    public TopContainerCmdExec(WebTarget baseResource, DockerClientConfig dockerClientConfig) {
+        super(baseResource, dockerClientConfig);
     }
 
     @Override
