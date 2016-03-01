@@ -10,7 +10,7 @@
 	<groupId>com.github.docker-java</groupId>
 	<artifactId>docker-java</artifactId>
 	<packaging>jar</packaging>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>3.0.0-gd</version>
 
 	<name>docker-java</name>
 	<url>https://github.com/docker-java/docker-java</url>
@@ -47,7 +47,7 @@
 		<jdk.source>1.7</jdk.source>
 		<jdk.target>1.7</jdk.target>
 
-		<jersey.version>2.11</jersey.version>
+		<jersey.version>2.22.1</jersey.version>
 		<jackson-jaxrs.version>2.6.4</jackson-jaxrs.version>
 		<httpclient.version>4.3.1</httpclient.version>
 		<commons-compress.version>1.5</commons-compress.version>
